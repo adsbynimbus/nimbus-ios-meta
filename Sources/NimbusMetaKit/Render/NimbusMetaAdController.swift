@@ -258,7 +258,7 @@ final class NimbusMetaAdController: AdController,
     }
     
     func rewardedVideoAdVideoComplete(_ rewardedVideoAd: FBRewardedVideoAd) {
-        sendNimbusEvent(.completed)
+        sendNimbusEvent(.rewardEarned)
     }
     
     func rewardedVideoAdDidClose(_ rewardedVideoAd: FBRewardedVideoAd) {
