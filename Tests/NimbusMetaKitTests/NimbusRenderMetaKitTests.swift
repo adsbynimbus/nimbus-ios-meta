@@ -246,9 +246,9 @@ class MockAdControllerDelegate: AdController.Delegate {
 
     func didRegisterImpressionForView() {}
 
-    func didReceiveNimbusEvent(controller: AdController, event: AdEvent) {}
+    func didReceiveNimbusEvent(event: AdEvent) {}
 
-    func didReceiveNimbusError(controller: AdController, error: NimbusError) {
+    func didReceiveNimbusError(error: NimbusError) {
         errors.append(error)
     }
 }
