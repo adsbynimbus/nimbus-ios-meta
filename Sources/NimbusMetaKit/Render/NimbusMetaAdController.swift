@@ -9,11 +9,12 @@
 import NimbusKit
 import FBAudienceNetwork
 
+// Internal: Do NOT implement delegate conformance as separate extensions as the methods will not be found in runtime when built as a static library
 final class NimbusMetaAdController: AdController,
-                                    @preconcurrency FBAdViewDelegate,
-                                    @preconcurrency FBNativeAdDelegate,
-                                    @preconcurrency FBInterstitialAdDelegate,
-                                    @preconcurrency FBRewardedVideoAdDelegate {
+                                    @MainActor FBAdViewDelegate,
+                                    @MainActor FBNativeAdDelegate,
+                                    @MainActor FBInterstitialAdDelegate,
+                                    @MainActor FBRewardedVideoAdDelegate {
     
     var fbAdView: FBAdView?
     var fbInterstitialAd: FBInterstitialAd?
@@ -265,5 +266,3 @@ final class NimbusMetaAdController: AdController,
         destroy()
     }
 }
-
-// Internal: Do NOT implement delegate conformance as separate extensions as the methods won't not be found in runtime when built as a static library
