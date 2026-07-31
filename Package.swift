@@ -4,14 +4,14 @@ import PackageDescription
 
 var package = Package(
     name: "NimbusMetaKit",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v15)],
     products: [
         .library(
            name: "NimbusMetaKit",
            targets: ["NimbusMetaKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/facebook/FBAudienceNetwork", from: "6.21.0"),
+        .package(url: "https://github.com/facebook/FBAudienceNetwork", from: "6.22.0"),
     ],
     targets: [
         .target(
