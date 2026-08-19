@@ -49,7 +49,7 @@ public struct MetaExtension: NimbusRequestExtension, NimbusRenderExtension {
         
         FBAdSettings.setMediationService("Ads By Nimbus")
         
-        if #available(iOS 14.5, *), ATTrackingManager.trackingAuthorizationStatus == .authorized {
+        if ATTrackingManager.trackingAuthorizationStatus == .authorized {
             FBAdSettings.setAdvertiserTrackingEnabled(true)
         }
     }

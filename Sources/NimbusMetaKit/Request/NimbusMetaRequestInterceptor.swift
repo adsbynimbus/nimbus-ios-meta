@@ -27,7 +27,7 @@ final class NimbusMetaRequestInterceptor {
         self.forceTestAd = forceTestAd
         self.bridge = bridge
         
-        if #available(iOS 14.5, *), ATTrackingManager.trackingAuthorizationStatus == .authorized {
+        if ATTrackingManager.trackingAuthorizationStatus == .authorized {
             FBAdSettings.setAdvertiserTrackingEnabled(true)
         }
     }
