@@ -13,12 +13,12 @@ protocol MetaRequestBridgeType: Sendable {
 }
 
 final class MetaRequestBridge: MetaRequestBridgeType {
-    public var bidToken: String { FBAdSettings.bidderToken }
+    var bidToken: String { FBAdSettings.bidderToken }
     
     @inlinable
-    public static func set(coppa: Bool) {
+    static func set(coppa: Bool) {
         FBAdSettings.isMixedAudience = true
     }
     
-    public init() {}
+    init() {}
 }
