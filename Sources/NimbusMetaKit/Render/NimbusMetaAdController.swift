@@ -153,14 +153,10 @@ final class NimbusMetaAdController: AdController,
                 fbNativeAdView.topAnchor.constraint(equalTo: adView.topAnchor),
                 fbNativeAdView.bottomAnchor.constraint(equalTo: adView.bottomAnchor)
             ])
-            
-            self.fbNativeAd = nil
         } else if let fbInterstitialAd, fbInterstitialAd.isAdValid {
             fbInterstitialAd.show(fromRootViewController: adPresentingViewController)
-            self.fbInterstitialAd = nil
         } else if let fbRewardedVideoAd, let adPresentingViewController, fbRewardedVideoAd.isAdValid {
             fbRewardedVideoAd.show(fromRootViewController: adPresentingViewController)
-            self.fbRewardedVideoAd = nil
         } else {
             sendNimbusError(.meta(reason: .invalidState, stage: .render, detail: "Ad \(adRenderType) is invalid and could not be presented."))
         }
@@ -259,7 +255,12 @@ final class NimbusMetaAdController: AdController,
     }
     
     func rewardedVideoAdVideoComplete(_ rewardedVideoAd: FBRewardedVideoAd) {
-        sendNimbusEvent(.rewardEarned)
+        sendNimbusEvent(.completed)
+        
+        // Meta uses video completion as the reward signal
+        if adRenderType == .rewarded {
+            sendNimbusEvent(.rewardEarned)
+        }
     }
     
     func rewardedVideoAdDidClose(_ rewardedVideoAd: FBRewardedVideoAd) {
