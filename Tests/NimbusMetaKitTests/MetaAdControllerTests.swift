@@ -64,29 +64,6 @@ struct MetaAdControllerTests {
         #expect(delegate.events.last == .destroyed)
     }
 
-    @Test func banner320x50RetriesOnceBeforeFailing() throws {
-        let (adController, delegate) = makeAdController(.banner, width: 320, height: 50)
-        adController.load()
-
-        let firstBanner = try #require(adController.fbAdView)
-        let firstMeta = try #require(firstBanner.delegate, "banner delegate not wired")
-
-        // First failure reloads with a new FBAdView instead of reporting an error
-        firstMeta.adView?(firstBanner, didFailWithError: metaError)
-        #expect(delegate.lastError == nil)
-        #expect(!delegate.events.contains(.destroyed))
-
-        let retryBanner = try #require(adController.fbAdView)
-        #expect(retryBanner !== firstBanner)
-        let retryMeta = try #require(retryBanner.delegate, "retry banner delegate not wired")
-        #expect(retryMeta === adController)
-
-        // Second failure is reported
-        retryMeta.adView?(retryBanner, didFailWithError: metaError)
-        expectMetaError(delegate)
-        #expect(delegate.events.last == .destroyed)
-    }
-
     // MARK: - Native
 
     @Test func nativeAdEventsGetFired() throws {
@@ -304,6 +281,25 @@ struct MetaAdControllerTests {
         #expect(!delegate.events.contains(.rewardEarned))
         #expect(delegate.events.last == .destroyed)
     }
+    
+    @Test func loadFailsWithoutPlacementId() {
+        let adController = MetaAdController(
+            response: NimbusResponse(id: "", bid: .init(mtype: .native, adm: "", price: 0, ext: .init())),
+            isBlocking: false,
+            isRewarded: false,
+            container: container,
+            adPresentingViewController: presenter
+        )
+        let delegate = MockDelegate()
+        adController.delegate = delegate
+
+        adController.load()
+
+        #expect(adController.fbNativeAd == nil)
+        #expect(delegate.lastError?.reason == .invalidState)
+        #expect(delegate.lastError?.detail == "Placement id is missing")
+        #expect(delegate.events.last == .destroyed)
+    }
 
     // MARK: - Helpers
 
@@ -325,7 +321,7 @@ struct MetaAdControllerTests {
         _ format: Format,
         width: Int? = nil,
         height: Int? = nil
-    ) -> (NimbusMetaAdController, MockDelegate) {
+    ) -> (MetaAdController, MockDelegate) {
         let mtype: NimbusResponse.Bid.MarkupType = switch format {
         case .banner, .interstitial: .static
         case .native: .native
@@ -341,7 +337,7 @@ struct MetaAdControllerTests {
             h: height
         )
 
-        let adController = NimbusMetaAdController(
+        let adController = MetaAdController(
             response: NimbusResponse(id: "", bid: bid),
             isBlocking: format == .interstitial || format == .rewarded,
             isRewarded: format == .rewarded,

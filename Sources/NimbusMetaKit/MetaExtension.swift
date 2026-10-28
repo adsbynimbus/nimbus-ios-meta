@@ -27,7 +27,7 @@ public struct MetaExtension: NimbusRequestExtension, NimbusRenderExtension {
     public var network: String { "facebook" }
     
     @_documentation(visibility: internal)
-    public var controllerType: AdController.Type { NimbusMetaAdController.self }
+    public var controllerType: AdController.Type { MetaAdController.self }
     
     @_documentation(visibility: internal)
     public let interceptor: any NimbusRequest.Interceptor
@@ -45,7 +45,7 @@ public struct MetaExtension: NimbusRequestExtension, NimbusRenderExtension {
     /// }
     /// ```
     public init(appId: String, forceTestAd: Bool = false) {
-        self.interceptor = NimbusMetaRequestInterceptor(appId: appId, forceTestAd: forceTestAd)
+        self.interceptor = MetaRequestInterceptor(appId: appId, forceTestAd: forceTestAd)
         
         FBAdSettings.setMediationService("Ads By Nimbus")
         

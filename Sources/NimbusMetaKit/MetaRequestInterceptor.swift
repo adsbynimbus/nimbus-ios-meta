@@ -1,5 +1,5 @@
 //
-//  NimbusMetaRequestInterceptor.swift
+//  MetaRequestInterceptor.swift
 //  NimbusMetaKit
 //
 //  Created on 10/4/19.
@@ -12,7 +12,7 @@ import AppTrackingTransparency
 
 /// Enables Meta demand for NimbusRequest
 /// Add an instance of this to `NimbusAdManager.requestInterceptors`
-final class NimbusMetaRequestInterceptor {
+final class MetaRequestInterceptor {
     
     /// Force a test ad for Meta
     let forceTestAd: Bool
@@ -39,7 +39,7 @@ final class NimbusMetaRequestInterceptor {
     }
 }
 
-extension NimbusMetaRequestInterceptor: NimbusRequest.Interceptor {
+extension MetaRequestInterceptor: NimbusRequest.Interceptor {
     func modifyRequest(request: NimbusRequest) async throws -> [NimbusRequest.Delta] {
         var deltas: [NimbusRequest.Delta] = [
             .init(target: .user, key: "facebook_buyeruid", value: bridge.bidToken),

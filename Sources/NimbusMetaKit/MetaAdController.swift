@@ -1,5 +1,5 @@
 //
-//  NimbusMetaAdController.swift
+//  MetaAdController.swift
 //  NimbusMetaKit
 //
 //  Created on 1/30/20.
@@ -10,24 +10,16 @@ import NimbusKit
 import FBAudienceNetwork
 
 // Internal: Do NOT implement delegate conformance as separate extensions as the methods will not be found in runtime when built as a static library
-final class NimbusMetaAdController: AdController,
-                                    @MainActor FBAdViewDelegate,
-                                    @MainActor FBNativeAdDelegate,
-                                    @MainActor FBInterstitialAdDelegate,
-                                    @MainActor FBRewardedVideoAdDelegate {
+final class MetaAdController: AdController,
+                              @MainActor FBAdViewDelegate,
+                              @MainActor FBNativeAdDelegate,
+                              @MainActor FBInterstitialAdDelegate,
+                              @MainActor FBRewardedVideoAdDelegate {
     
     var fbAdView: FBAdView?
     var fbInterstitialAd: FBInterstitialAd?
     var fbNativeAd: FBNativeAd?
     var fbRewardedVideoAd: FBRewardedVideoAd?
-
-    /// Determines whether ad has registered an impression
-    private var hasRegisteredAdImpression = false
-
-    private var isAdVisible = false
-    
-    private var is320by50Banner = false
-    private var fbAdSize: FBAdSize?
     
     override class func setup(
         response: NimbusResponse,
@@ -79,16 +71,20 @@ final class NimbusMetaAdController: AdController,
             fbInterstitialAd?.load(withBidPayload: response.bid.adm)
 
         case .banner:
-            switch response.bid.h {
-            case 90: fbAdSize = kFBAdSizeHeight90Banner
-            case 250: fbAdSize = kFBAdSizeHeight250Rectangle
-            default:
-                // Old integration also used to default to 320x50
-                fbAdSize = kFBAdSizeHeight50Banner
-                is320by50Banner = response.bid.w == 320 && response.bid.h == 50
+            let adSize = switch response.bid.h {
+            case 50: kFBAdSizeHeight50Banner
+            case 90: kFBAdSizeHeight90Banner
+            case 250: kFBAdSizeHeight250Rectangle
+            default: FBAdSize(size: response.bid.size)
             }
             
-            loadBannerAd()
+            fbAdView = FBAdView(
+                placementID: placementId,
+                adSize: adSize,
+                rootViewController: adPresentingViewController
+            )
+            fbAdView?.delegate = self
+            fbAdView?.loadAd(withBidPayload: response.bid.adm)
         case .rewarded:
             fbRewardedVideoAd = FBRewardedVideoAd(placementID: placementId)
             fbRewardedVideoAd?.delegate = self
@@ -96,22 +92,6 @@ final class NimbusMetaAdController: AdController,
         @unknown default:
             sendNimbusError(.meta(reason: .unsupported, stage: .render, detail: "adRenderType: \(adRenderType.rawValue)"))
         }
-    }
-    
-    private func loadBannerAd() {
-        // This is caught at init before this function ever gets called
-        guard let placementId = response.bid.ext?.omp?.buyerPlacementId, let fbAdSize else {
-            sendNimbusError(.meta(reason: .invalidState, stage: .render, detail: "Ad size is missing"))
-            return
-        }
-        
-        fbAdView = FBAdView(
-            placementID: placementId,
-            adSize: fbAdSize,
-            rootViewController: adPresentingViewController
-        )
-        fbAdView?.delegate = self
-        fbAdView?.loadAd(withBidPayload: response.bid.adm)
     }
     
     // MARK: - AdController overrides
@@ -171,14 +151,7 @@ final class NimbusMetaAdController: AdController,
     }
 
     func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        if is320by50Banner {
-            // Retry with the old banner size
-            is320by50Banner = false
-            fbAdSize = kFBAdSizeHeight50Banner
-            loadBannerAd()
-        } else {
-            sendNimbusError(.meta(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.meta(stage: .render, detail: error.localizedDescription))
     }
 
     func adViewWillLogImpression(_ adView: FBAdView) {
@@ -198,7 +171,6 @@ final class NimbusMetaAdController: AdController,
     }
 
     func nativeAdWillLogImpression(_ nativeAd: FBNativeAd) {
-        hasRegisteredAdImpression = true
         sendNimbusEvent(.impression)
     }
 

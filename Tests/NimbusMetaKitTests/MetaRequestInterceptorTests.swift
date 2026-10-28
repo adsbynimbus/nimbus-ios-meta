@@ -1,5 +1,5 @@
 //
-//  NimbusMetaRequestInterceptorTests.swift
+//  MetaRequestInterceptorTests.swift
 //  NimbusMetaKitTests
 //
 //  Created on 10/4/19.
@@ -11,9 +11,9 @@
 import Testing
 
 @Suite("Meta request interceptor tests")
-struct NimbusFANRequestInterceptorTests {
+struct MetaRequestInterceptorTests {
     @Test func fanTokenDataIsReturned() async throws {
-        let interceptor = NimbusMetaRequestInterceptor(appId: "appId", bridge: MockMetaRequestBridge())
+        let interceptor = MetaRequestInterceptor(appId: "appId", bridge: MockMetaRequestBridge())
         let info = try await NimbusRequest(from: Nimbus.bannerAd(position: "test", size: .banner).adRequest!.request)
         let deltas = try await interceptor.modifyRequest(request: info)
         
@@ -32,7 +32,7 @@ struct NimbusFANRequestInterceptorTests {
     @Test func fanTokenDataIsReturnedIncludingTestAdType() async throws {
         let tmp = Nimbus.configuration.testMode
         
-        let interceptor = NimbusMetaRequestInterceptor(appId: "appId", forceTestAd: true, bridge: MockMetaRequestBridge())
+        let interceptor = MetaRequestInterceptor(appId: "appId", forceTestAd: true, bridge: MockMetaRequestBridge())
         Nimbus.configuration.testMode = true
         
         let info = try NimbusRequest(from: Nimbus.bannerAd(position: "test", size: .banner).adRequest!.request)
@@ -58,9 +58,9 @@ struct NimbusFANRequestInterceptorTests {
     @Test
     @MainActor
     func fanTokenDataGetsInsertedIntoRequest() async throws {
-        let interceptor = NimbusMetaRequestInterceptor(appId: "appId", bridge: MockMetaRequestBridge())
+        let interceptor = MetaRequestInterceptor(appId: "appId", bridge: MockMetaRequestBridge())
         
-        let ad = try Nimbus.rewardedAd(position: "test")
+        let ad = Nimbus.rewardedAd(position: "test")
         ad.adRequest!.request.interceptors = [interceptor]
         
         try await ad.adRequest!.request.modifyRequestWithExtras(
