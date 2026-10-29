@@ -18,5 +18,5 @@ Pod::Spec.new do |spec|
     }
 
     spec.dependency 'NimbusSDK/NimbusKit', '~> 3'
-    spec.dependency 'FBAudienceNetwork', '~> 6.20'
+    spec.dependency 'FBAudienceNetwork', '~> 6.22'
 end
